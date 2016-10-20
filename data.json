@@ -1,0 +1,40 @@
+{
+	"filename" : "file exmaple.docx",
+	"category" :"Finacial Report",
+	"Locaiton" : "NFS Server 1",
+	"Created" : "10/10/2014",
+	"Modified" : "13/3/2015",
+	"source_info" :
+	{
+		"source" : "Created by Guy L at 10/4/2013",
+		"copies" :
+		{
+			"User A" : 3,
+			"User B" : 2,
+			"User C" : 6
+		}
+	},
+	"featuers" :
+	{
+		"Patterns" :
+		{
+			"Social_security_number" :  1,
+			"Email address" : 4
+		},
+		"ENR" :
+		{
+			"PRI" :
+			{
+			   "SSN" : 1,
+			   "Email_address" : 4
+			},
+			"Vendors" : ["D.Day Labs", "Microsoft"],
+			"Clients" :
+			[
+	      {"names" :  "Guy Leibvoitz", "consent": "True"},
+	      {"name": "Jhony Demo", "consent" : "False"}
+	    ],
+			"Locations" : ["New York, NY", "Paris, France"]
+		}
+	}
+}
