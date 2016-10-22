@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
+<meta charset='utf-8'>
 <title>Force-Directed Graph</title>
 <style>
 
@@ -15,32 +15,54 @@
   stroke-width: 1.5px;
 }
 
+.round-div {
+  border: .21em solid #e74c3c;
+  font-size: 0.8em;
+  padding: 4px;
+  text-align: center;
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 8px 15px;
+
+  -webkit-border-radius: 100px !important;
+  -moz-border-radius: 100px !important;
+  border-radius: 100px !important;
+}
+
+.rect-div {
+  border: .21em solid #e74c3c;
+  font-size: 0.8em;
+  padding: 4px;
+  text-align: center;
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 8px 15px;
+}
+
 </style>
 <body>
-<script src="//d3js.org/d3.v3.min.js"></script>
+<script src='//d3js.org/d3.v3.min.js'></script>
 <script>
 
-var width = 960,
-    height = 500,
+var width = 1024,
+    height = 768,
+    node_width = 150,
     root;
 
 var force = d3.layout.force()
-    .size([width, height])
-    .on("tick", tick);
+                    .linkDistance(150)
+                    .distance(300)
+                    .charge(-300)
+                    .gravity(0.06)
+                    .size([width, height])
+                    .on('tick', tick);
 
-var svg = d3.select("body").append("svg")
-    .attr("width", width)
-    .attr("height", height);
+var svg = d3.select('body').append('svg')
+                          .attr('width', width)
+                          .attr('height', height);
 
-var link = svg.selectAll(".link"),
-    node = svg.selectAll(".node");
-
-d3.json("readme.json", function(error, json) {
-  if (error) throw error;
-
-  root = json;
-  update();
-});
+var link = svg.selectAll('.link'),
+    node = svg.selectAll('.node');
 
 function update() {
   var nodes = flatten(root),
@@ -59,43 +81,70 @@ function update() {
   link.exit().remove();
 
   // Enter any new links.
-  link.enter().insert("line", ".node")
-      .attr("class", "link")
-      .attr("x1", function(d) { return d.source.x; })
-      .attr("y1", function(d) { return d.source.y; })
-      .attr("x2", function(d) { return d.target.x; })
-      .attr("y2", function(d) { return d.target.y; });
+  link.enter().insert('line', '.node')
+      .attr('class', 'link')
+      .attr('x1', function(d) { return d.source.x + node_width / 2; })
+      .attr('y1', function(d) { return d.source.y + 10; })
+      .attr('x2', function(d) { return d.target.x + node_width / 2; })
+      .attr('y2', function(d) { return d.target.y + 10; });
 
   // Update the nodes…
-  node = node.data(nodes, function(d) { return d.id; }).style("fill", color);
+  node = node.data(nodes, function(d) { return d.id; }).style('fill', color);
 
   // Exit any old nodes.
   node.exit().remove();
 
-  // Enter any new nodes.
-  node.enter().append("circle")
-      .attr("class", "node")
-      .attr("cx", function(d) { return d.x; })
-      .attr("cy", function(d) { return d.y; })
-      .attr("r", function(d) { return Math.sqrt(d.size) / 10 || 4.5; })
-      .style("fill", color)
-      .on("click", click)
-      .call(force.drag);
+  // Draw node
+  var node_wrapper = node.enter().append('foreignObject')
+                    .attr({
+                      'width': node_width_callback,
+                      'x': function(d) { return d.x; },
+                      'y': function(d) { return d.y; },
+                      'class': 'node'
+                    })
+                    .on('click', click)
+                    .call(force.drag);
+
+  var div = node_wrapper.append('xhtml:div')
+                        .attr({ 'class': node_class_callback })
+                        .html(node_label_callback);
+
+  var height = div[0][0].getBoundingClientRect().height;
+  node_wrapper.attr({ 'height': height });
 }
 
 function tick() {
-  link.attr("x1", function(d) { return d.source.x; })
-      .attr("y1", function(d) { return d.source.y; })
-      .attr("x2", function(d) { return d.target.x; })
-      .attr("y2", function(d) { return d.target.y; });
+  link.attr('x1', function(d) { return d.source.x + node_width / 2; })
+      .attr('y1', function(d) { return d.source.y + 10; })
+      .attr('x2', function(d) { return d.target.x + node_width / 2; })
+      .attr('y2', function(d) { return d.target.y + 10; });
 
-  node.attr("cx", function(d) { return d.x; })
-      .attr("cy", function(d) { return d.y; });
+  node.attr('x', function(d) { return d.x; })
+      .attr('y', function(d) { return d.y; });
+}
+
+// Label callback
+function node_label_callback(d) {
+  var info = [];
+  for (var key in d.meta_info) {
+    info.push(d.meta_info[key]);
+  }
+  return info.join('<br />');
+}
+
+// CSS callback
+function node_class_callback(d) {
+  return d.root ? 'rect-div' : 'round-div';
+}
+
+// Node width callback
+function node_width_callback(d) {
+  return d.root ? 200 : node_width
 }
 
 // Color leaf nodes orange, and packages white or blue.
 function color(d) {
-  return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
+  return d._children ? '#3182bd' : d.children ? '#c6dbef' : '#fd8d3c';
 }
 
 // Toggle children on click.
@@ -117,14 +166,22 @@ function flatten(root) {
   var nodes = [], i = 0;
 
   function recurse(node) {
-    if (node.children) node.children.forEach(recurse);
-    if (!node.id) node.id = ++i;
+    if (node.children)
+      node.children.forEach(recurse);
+    if (!node.id)
+      node.id = ++i;
     nodes.push(node);
   }
 
   recurse(root);
-  debugger;
   return nodes;
 }
+
+d3.json('converted.json', function(error, json) {
+  if (error) throw error;
+
+  root = json;
+  update();
+});
 
 </script>
