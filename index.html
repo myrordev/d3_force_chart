@@ -128,7 +128,18 @@
     function node_label_callback(d) {
       var info = [];
       for (var key in d.meta_info) {
-        info.push(d.meta_info[key]);
+        if (d.meta_info[key] == key) {
+          if (d.children !== undefined && d.children != null && d.children.length > 0)
+            info.push(key + '(' + d.children.length + ')');
+          else
+            info.push(key);
+        } else {
+          if (d.meta_info.hasOwnProperty('consent')) {
+            info.push(d.meta_info[key]);
+          } else {
+            info.push(key + '(' + d.meta_info[key] + ')');
+          }
+        }
       }
       return info.join('<br />');
     }
