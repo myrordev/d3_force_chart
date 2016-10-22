@@ -2,207 +2,282 @@
 <meta charset="utf-8">
 <title>Force-Directed Graph</title>
 <style>
-
-.node {
-  cursor: pointer;
-  stroke: #3182bd;
-  stroke-width: 1.5px;
-}
-
-.link {
-  fill: none;
-  stroke: #9ecae1;
-  stroke-width: 1.5px;
-}
-
-</style>
-<body>
-<script src="https://d3js.org/d3.v3.min.js"></script>
-<script>
-
-var width = 960,
-    height = 500,
-    root;
-
-var force = d3.layout.force()
-    .size([width, height])
-    .on("tick", tick);
-
-var svg = d3.select("body").append("svg")
-    .attr("width", width)
-    .attr("height", height);
-
-var link = svg.selectAll(".link"),
-    node = svg.selectAll(".node");
-
-d3.json("data.json", function(error, json) {
-  if (error) throw error;
-
-  root = json;
-  update();
-});
-
-function update() {
-  var nodes = flatten(root),
-      links = d3.layout.tree().links(nodes);
-  debugger;
-  // Restart the force layout.
-  force
-      .nodes(nodes)
-      .links(links)
-      .start();
-
-  // Update the links…
-  link = link.data(links, function(d) { return d.target.id; });
-
-  // Exit any old links.
-  link.exit().remove();
-
-  // Enter any new links.
-  link.enter().insert("line", ".node")
-      .attr("class", "link")
-      .attr("x1", function(d) { return d.source.x; })
-      .attr("y1", function(d) { return d.source.y; })
-      .attr("x2", function(d) { return d.target.x; })
-      .attr("y2", function(d) { return d.target.y; });
-
-  // Update the nodes…
-  node = node.data(nodes, function(d) { return d.id; }).style("fill", color);
-
-  // Exit any old nodes.
-  node.exit().remove();
-
-  // Enter any new nodes.
-  node.enter().append("circle")
-      .attr("class", "node")
-      .attr("cx", function(d) { return d.x; })
-      .attr("cy", function(d) { return d.y; })
-      .attr("r", function(d) { return Math.sqrt(d.size) / 10 || 4.5; })
-      .style("fill", color)
-      .on("click", click)
-      .call(force.drag);
-}
-
-function tick() {
-  link.attr("x1", function(d) { return d.source.x; })
-      .attr("y1", function(d) { return d.source.y; })
-      .attr("x2", function(d) { return d.target.x; })
-      .attr("y2", function(d) { return d.target.y; });
-
-  node.attr("cx", function(d) { return d.x; })
-      .attr("cy", function(d) { return d.y; });
-}
-
-// Color leaf nodes orange, and packages white or blue.
-function color(d) {
-  return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
-}
-
-// Toggle children on click.
-function click(d) {
-  if (!d3.event.defaultPrevented) {
-    if (d.children) {
-      d._children = d.children;
-      d.children = null;
-    } else {
-      d.children = d._children;
-      d._children = null;
-    }
-    update();
+  .node {
+    cursor: pointer;
+    stroke: #3182bd;
+    stroke-width: 1.5px;
   }
-}
 
-// Returns a list of all nodes under the root.
-function flatten(root) {
-  var nodes = [],
-      i = 0;
+  .link {
+    fill: none;
+    stroke: #9ecae1;
+    stroke-width: 1.5px;
+  }
 
-  function recurse(node, node_key, recursive_count) {
-    var child_nodes = [],
-        child_objects_keys = [],
-        children_hash = new Object();
+  .round-div {
+    border: .21em solid #e74c3c;
+    font-size: 0.8em;
+    padding: 4px;
+    text-align: center;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 8px 15px;
 
-    var recursive_count = recursive_count;
+    -webkit-border-radius: 100px !important;
+    -moz-border-radius: 100px !important;
+    border-radius: 100px !important;
+  }
 
-    for (var key in node) {
-      if (node.hasOwnProperty(key)) {
-        if (typeof(node[key]) == "object" && node.constructor !== Array)
-          child_objects_keys.push(key);
-      }
+  .rect-div {
+    border: .21em solid #e74c3c;
+    font-size: 0.8em;
+    padding: 4px;
+    text-align: center;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 8px 15px;
+  }
+</style>
+
+<script src="https://d3js.org/d3.v3.min.js"></script>
+
+<body>
+
+  <script type="text/javascript">
+    var width = 1024,
+        height = 768,
+        node_width = 150,
+        root;
+
+    var force = d3.layout.force()
+                        .linkDistance(150)
+                        .distance(300)
+                        .charge(-300)
+                        .gravity(0.06)
+                        .size([width, height])
+                        .on('tick', tick);
+
+    var svg = d3.select('body').append('svg')
+                              .attr('width', width)
+                              .attr('height', height);
+
+    var link = svg.selectAll('.link'),
+        node = svg.selectAll('.node');
+
+    // Update nodes and links info
+    function update() {
+      var nodes = flatten(root),
+          links = d3.layout.tree().links(nodes);
+
+      // Restart the force layout.
+      force
+          .nodes(nodes)
+          .links(links)
+          .start();
+
+      // Update the links…
+      link = link.data(links, function(d) { return d.target.id; });
+
+      // Exit any old links.
+      link.exit().remove();
+
+      // Enter any new links.
+      link.enter().insert('line', '.node')
+          .attr('class', 'link')
+          .attr('x1', function(d) { return d.source.x + node_width / 2; })
+          .attr('y1', function(d) { return d.source.y + 10; })
+          .attr('x2', function(d) { return d.target.x + node_width / 2; })
+          .attr('y2', function(d) { return d.target.y + 10; });
+
+      // Update the nodes…
+      node = node.data(nodes, function(d) { return d.id; }).style('fill', color);
+
+      // Exit any old nodes.
+      node.exit().remove();
+
+      // Draw node
+      var node_wrapper = node.enter().append('foreignObject')
+                        .attr({
+                          'width': node_width_callback,
+                          'x': function(d) { return d.x; },
+                          'y': function(d) { return d.y; },
+                          'class': 'node'
+                        })
+                        .on('click', click)
+                        .call(force.drag);
+
+      var div = node_wrapper.append('xhtml:div')
+                            .attr({ 'class': node_class_callback })
+                            .html(node_label_callback);
+
+      var height = div[0][0].getBoundingClientRect().height;
+      node_wrapper.attr({ 'height': height });
     }
 
-    // Iterate child keys
-    if (child_objects_keys.length > 0) {
-      for (var j = 0; j < child_objects_keys.length; j++) {
-          var temp_nodes = recurse(node[child_objects_keys[j]], child_objects_keys[j], recursive_count + 1);
-          children_hash[child_objects_keys[j]] = temp_nodes;
-      }
+    function tick() {
+      link.attr('x1', function(d) { return d.source.x + node_width / 2; })
+          .attr('y1', function(d) { return d.source.y + 10; })
+          .attr('x2', function(d) { return d.target.x + node_width / 2; })
+          .attr('y2', function(d) { return d.target.y + 10; });
+
+      node.attr('x', function(d) { return d.x; })
+          .attr('y', function(d) { return d.y; });
     }
 
-    if (recursive_count > 0) {
-      if (node.constructor === Array) {
-        for (var j = 0; j < node.length; j++) {
-          var leaf_node = new Object();
-          leaf_node.key = node[j];
-          leaf_node.value = node[j];
-          leaf_node.id = ++i;
-          nodes.push(leaf_node);
-          child_nodes.push(leaf_node);
+    // Label callback
+    function node_label_callback(d) {
+      var info = [];
+      for (var key in d.meta_info) {
+        info.push(d.meta_info[key]);
+      }
+      return info.join('<br />');
+    }
+
+    // CSS callback
+    function node_class_callback(d) {
+      return d.root ? 'rect-div' : 'round-div';
+    }
+
+    // Node width callback
+    function node_width_callback(d) {
+      return d.root ? 200 : node_width
+    }
+
+    // Color leaf nodes orange, and packages white or blue.
+    function color(d) {
+      return d._children ? '#3182bd' : d.children ? '#c6dbef' : '#fd8d3c';
+    }
+
+    // Toggle children on click.
+    function click(d) {
+      if (!d3.event.defaultPrevented) {
+        if (d.children) {
+          d._children = d.children;
+          d.children = null;
+        } else {
+          d.children = d._children;
+          d._children = null;
         }
-      } else {
+        update();
+      }
+    }
+
+    // Returns a list of all nodes under the root.
+    function flatten(root) {
+      var nodes = [], i = 0;
+
+      function recurse(node) {
+        if (node.children)
+        node.children.forEach(recurse);
+        if (!node.id)
+        node.id = ++i;
+        nodes.push(node);
+      }
+
+      recurse(root);
+      return nodes;
+    }
+
+    // Convert original JSON to correct format for the chart
+    function convertJSON(origin_json) {
+      var nodes = [];
+
+      function recurse(node, node_key) {
+        var child_nodes = [],
+            child_objects_keys = [],
+            children_hash = new Object();
+
         for (var key in node) {
           if (node.hasOwnProperty(key)) {
-            var leaf_node = new Object();
-            leaf_node.key = key;
-            leaf_node.value = node[key];
-            leaf_node.id = ++i;
-
-            if (children_hash.hasOwnProperty(key))
-              leaf_node.children = children_hash[key];
-
-            nodes.push(leaf_node);
-            child_nodes.push(leaf_node);
+            if (typeof(node[key]) == "object" && node.constructor !== Array)
+              child_objects_keys.push(key);
           }
         }
-      }
-    } else {
-      debugger;
-      for (var key in node) {
-        if (node.hasOwnProperty(key)) {
-          if (children_hash.hasOwnProperty(key)) {
-            var leaf_node = new Object();
-            leaf_node.key = key;
-            leaf_node.value = node[key];
-            leaf_node.id = ++i;
-            leaf_node.children = children_hash[key];
 
-            nodes.push(leaf_node);
-            child_nodes.push(leaf_node);
+        // Iterate child keys
+        if (child_objects_keys.length > 0) {
+          for (var j = 0; j < child_objects_keys.length; j++) {
+            var temp_nodes = recurse(node[child_objects_keys[j]], child_objects_keys[j]);
+            children_hash[child_objects_keys[j]] = temp_nodes;
           }
         }
-      }
-      // Set root attribute
-      var root_node = new Object();
-      root_node.children = child_nodes;
-      root_node.value = {};
-      root_node.id = ++i;
-      root_node.key = node_key;
 
-      for (var key in node) {
-        if (node.hasOwnProperty(key)) {
-          if (!children_hash.hasOwnProperty(key)) {
-            root_node.value[key] = node[key];
+        if (node_key != "root") {
+          if (node.constructor === Array) {
+            // Array to leaf
+            for (var j = 0; j < node.length; j++) {
+              var leaf_node = new Object();
+              leaf_node.meta_info = {};
+              if (typeof(node[j]) == "object")
+                leaf_node.meta_info = node[j];
+              else
+                leaf_node.meta_info[node[j]] = node[j];
+
+              child_nodes.push(leaf_node);
+            }
+          } else {
+            // Hash to leaf with children
+            for (var key in node) {
+              if (node.hasOwnProperty(key)) {
+                var leaf_node = new Object();
+                leaf_node.meta_info = {};
+
+                if (children_hash.hasOwnProperty(key)) {
+                  leaf_node.children = children_hash[key];
+                  leaf_node.meta_info[key] = key;
+                } else {
+                  leaf_node.meta_info[key] = node[key];
+                }
+
+                child_nodes.push(leaf_node);
+              }
+            }
           }
+        } else {
+          // Root node's children
+          for (var key in node) {
+            if (node.hasOwnProperty(key)) {
+              if (children_hash.hasOwnProperty(key)) {
+                var leaf_node = new Object();
+                leaf_node.meta_info = {};
+                leaf_node.children = children_hash[key];
+                leaf_node.meta_info[key] = key;
+
+                child_nodes.push(leaf_node);
+              }
+            }
+          }
+
+          // Root node
+          var root_node = new Object();
+          root_node.meta_info = {};
+          root_node.children = child_nodes;
+          root_node.root = true;
+
+          for (var key in node) {
+            if (node.hasOwnProperty(key)) {
+              if (!children_hash.hasOwnProperty(key)) {
+                root_node.meta_info[key] = node[key];
+              }
+            }
+          }
+
+          return root_node;
         }
+
+        return child_nodes;
       }
-      nodes.push(root_node);
+
+      nodes = recurse(origin_json, "root");
+      return nodes;
     }
 
-    return child_nodes;
-  }
+    d3.json('data.json', function(error, json) {
+      if (error) throw error;
 
-  recurse(root, "root", 0);
-  return nodes;
-}
+      root = convertJSON(json);
+      update();
+    });
+  </script>
 
-</script>
+</body>
