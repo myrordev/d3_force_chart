@@ -1,0 +1,78 @@
+{
+  "meta_info":
+  {
+    "filename" : "file exmaple.docx",
+    "category" :"Finacial Report",
+    "Locaiton" : "NFS Server 1",
+    "Created" : "10/10/2014",
+    "Modified" : "13/3/2015"
+  },
+  "root": true,
+  "children": [
+    {
+      "meta_info": { "source_info": "source_info"},
+      "children": [
+        {
+          "meta_info": {"source" : "Created by Guy L at 10/4/2013"}
+        },
+        {
+          "meta_info": {"copies" : "copies"},
+          "children": [
+            { "meta_info": {"User A" : 3} },
+            { "meta_info": {"User B" : 2} },
+            { "meta_info": {"User C" : 6} }
+          ]
+        }
+      ]
+    },
+    {
+      "meta_info": { "features": "features" },
+      "children": [
+        {
+          "meta_info": { "Patterns": "Patterns"},
+          "children": [
+            {
+              "meta_info": { "Social_security_number": 1 }
+            },
+            {
+              "meta_info": { "Email address": 4}
+            }
+          ]
+        },
+        {
+          "meta_info": { "ENR": "ENR"},
+          "children": [
+            {
+              "meta_info": { "PRI": "PRI" },
+              "children": [
+                { "meta_info": { "SSN" : 1 } },
+                { "meta_info": { "Email_address" : 4 } }
+              ]
+            },
+            {
+              "meta_info": { "Vendors": "Vendors" },
+              "children": [
+                { "meta_info": { "D.Day Labs" : "D.Day Labs" } },
+                { "meta_info": { "Microsoft" : "Microsoft" } }
+              ]
+            },
+            {
+              "meta_info": { "Clients": "Clients" },
+              "children": [
+                { "meta_info": {"names" :  "Guy Leibvoitz", "consent": "True"} },
+                { "meta_info": {"name": "Jhony Demo", "consent" : "False"} }
+              ]
+            },
+            {
+              "meta_info": { "Locations": "Locations" },
+              "children": [
+                { "meta_info": { "New York, NY" : "New York, NY" } },
+                { "meta_info": { "Paris, France" : "Paris, France" } }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
