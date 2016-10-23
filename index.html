@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <title>Force-Directed Graph</title>
+<head>
+  <link rel="stylesheet" href="font-awesome-4.6.3/css/font-awesome.min.css">
+</head>
 <style>
   .node {
     cursor: pointer;
@@ -36,6 +39,18 @@
     background: rgba(0,0,0,0.8);
     color: white;
     padding: 8px 15px;
+  }
+
+  .node .consent-true {
+    margin-left: 10px;
+    color: #82f382;
+    font-size: 15px;
+  }
+
+  .node .consent-false {
+    margin-left: 10px;
+    color: #ffac62;
+    font-size: 15px;
   }
 </style>
 
@@ -127,31 +142,32 @@
     // Label callback
     function node_label_callback(d) {
       var info = [];
-      for (var key in d.meta_info) {
-        if (d.meta_info[key] == key) {
-          if (d.children !== undefined && d.children != null && d.children.length > 0)
-            info.push(key + '(' + d.children.length + ')');
-          else
-            info.push(key);
-        } else {
-          if (d.meta_info.hasOwnProperty('consent')) {
-            info.push(d.meta_info[key]);
-          } else {
-            info.push(key + '(' + d.meta_info[key] + ')');
+
+      if (typeof(d.data) === "object") {
+        for (var key in d.data) {
+          if (d.data.hasOwnProperty(key)) {
+            if (key == "consent") {
+              var icon_str = d.data[key] ? '<i class="fa fa-check-circle consent-true"></i>' : '<i class="fa fa-exclamation-triangle consent-false"></i>';
+              info.push(key.charAt(0).toUpperCase() + key.slice(1) + icon_str);
+            } else {
+              info.push(d.data[key]);
+            }
           }
         }
+      } else {
+        info = [d.data];
       }
       return info.join('<br />');
     }
 
     // CSS callback
     function node_class_callback(d) {
-      return d.root ? 'rect-div' : 'round-div';
+      return d.node_type == "ENR" ? 'rect-div' : 'round-div';
     }
 
     // Node width callback
     function node_width_callback(d) {
-      return d.root ? 200 : node_width
+      return d.node_type == "ENR" ? 200 : node_width
     }
 
     // Color leaf nodes orange, and packages white or blue.
@@ -189,104 +205,10 @@
       return nodes;
     }
 
-    // Convert original JSON to correct format for the chart
-    function convertJSON(origin_json) {
-      var nodes = [];
-
-      function recurse(node, node_key) {
-        var child_nodes = [],
-            child_objects_keys = [],
-            children_hash = new Object();
-
-        for (var key in node) {
-          if (node.hasOwnProperty(key)) {
-            if (typeof(node[key]) == "object" && node.constructor !== Array)
-              child_objects_keys.push(key);
-          }
-        }
-
-        // Iterate child keys
-        if (child_objects_keys.length > 0) {
-          for (var j = 0; j < child_objects_keys.length; j++) {
-            var temp_nodes = recurse(node[child_objects_keys[j]], child_objects_keys[j]);
-            children_hash[child_objects_keys[j]] = temp_nodes;
-          }
-        }
-
-        if (node_key != "root") {
-          if (node.constructor === Array) {
-            // Array to leaf
-            for (var j = 0; j < node.length; j++) {
-              var leaf_node = new Object();
-              leaf_node.meta_info = {};
-              if (typeof(node[j]) == "object")
-                leaf_node.meta_info = node[j];
-              else
-                leaf_node.meta_info[node[j]] = node[j];
-
-              child_nodes.push(leaf_node);
-            }
-          } else {
-            // Hash to leaf with children
-            for (var key in node) {
-              if (node.hasOwnProperty(key)) {
-                var leaf_node = new Object();
-                leaf_node.meta_info = {};
-
-                if (children_hash.hasOwnProperty(key)) {
-                  leaf_node.children = children_hash[key];
-                  leaf_node.meta_info[key] = key;
-                } else {
-                  leaf_node.meta_info[key] = node[key];
-                }
-
-                child_nodes.push(leaf_node);
-              }
-            }
-          }
-        } else {
-          // Root node's children
-          for (var key in node) {
-            if (node.hasOwnProperty(key)) {
-              if (children_hash.hasOwnProperty(key)) {
-                var leaf_node = new Object();
-                leaf_node.meta_info = {};
-                leaf_node.children = children_hash[key];
-                leaf_node.meta_info[key] = key;
-
-                child_nodes.push(leaf_node);
-              }
-            }
-          }
-
-          // Root node
-          var root_node = new Object();
-          root_node.meta_info = {};
-          root_node.children = child_nodes;
-          root_node.root = true;
-
-          for (var key in node) {
-            if (node.hasOwnProperty(key)) {
-              if (!children_hash.hasOwnProperty(key)) {
-                root_node.meta_info[key] = node[key];
-              }
-            }
-          }
-
-          return root_node;
-        }
-
-        return child_nodes;
-      }
-
-      nodes = recurse(origin_json, "root");
-      return nodes;
-    }
-
-    d3.json('data.json', function(error, json) {
+    d3.json('data_2.json', function(error, json) {
       if (error) throw error;
 
-      root = convertJSON(json);
+      root = json;
       update();
     });
   </script>

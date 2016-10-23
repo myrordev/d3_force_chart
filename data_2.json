@@ -1,0 +1,127 @@
+{
+  "node_id" : 1,
+  "node_type" : "ENR",
+  "collapsed" : false,
+  "data" : {
+    "filename" : "file exmaple.docx",
+    "category" :"Finacial Report",
+    "Location" : "NFS Server 1",
+    "Created" : "10/10/2014",
+    "Modified" : "13/3/2015"
+  },
+  "children" : [
+    {
+      "node_id" : 2,
+      "collapsed" : false,
+      "children" : [
+        {
+          "node_id" : 3,
+          "collapsed" : true,
+          "node_type" : "source",
+          "data" : {
+            "source" : "Downloaded",
+            "date" : "10/10/20"
+          }
+        },
+        {
+          "node_id" : 4,
+          "collapsed" : true,
+          "data" : "Copies (10)",
+          "children" : [
+            {
+              "node_id" : 5,
+              "collapsed" : true,
+              "data" : "UserA (3)"
+            },
+            {
+              "node_id" : 6,
+              "collapsed" : true,
+              "data" : "UserB (2)"
+            },
+            {
+              "node_id" : 7,
+              "collapsed" : true,
+              "data" : "UserC (5)"
+            }
+          ]
+        },
+        {
+          "node_id" : 8,
+          "collapsed" : false,
+          "children" : [
+            {
+              "node_id" : 9,
+              "collapsed" : true,
+              "data" : "Locations (2)",
+              "children" : [
+                {
+                  "node_id" : 10,
+                  "collapsed" : true,
+                  "data" : "Tel Aviv, Israel"
+                },
+                {
+                  "node_id" : 11,
+                  "collapsed" : true,
+                  "data" : "New York, New York"
+                }
+              ]
+            },
+            {
+              "node_id" : 12,
+              "collapsed" : true,
+              "data" : "Names (2)",
+              "children" : [
+                {
+                  "node_id" : 13,
+                  "node_type" : "consent",
+                  "collapsed" : true,
+                  "data" : {"name" : "GUY XYZ", "consent" : true}
+                },
+                {
+                  "node_id" : 14,
+                  "node_type" : "consent",
+                  "collapsed" : true,
+                  "data" : {"name" : "Barak Obama", "consent" : false}
+                }
+              ]
+            },
+            {
+              "node_id" : 15,
+              "collapsed" : true,
+              "data" : "Vendors (2)",
+              "children" : [
+                {
+                  "node_id" : 16,
+                  "collapsed" : true,
+                  "data" : "Vendor1"
+                },
+                {
+                  "node_id" : 17,
+                  "collapsed" : true,
+                  "data" : "Vendor2"
+                }
+              ]
+            },
+            {
+              "node_id" : 18,
+              "collapsed" : true,
+              "data" : "Patterns",
+              "children" : [
+                {
+                  "node_id" : 19,
+                  "collapsed" : true,
+                  "data" : "SSN (1)"
+                },
+                {
+                  "node_id" : 20,
+                  "collapsed" : true,
+                  "data" : "Emails (10)"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
